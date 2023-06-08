@@ -45,6 +45,8 @@ function curateSources(sources = []) {
 const Pinecone = {
   name: 'Pinecone',
   connect: async function () {
+    if (process.env.VECTOR_DB !== 'pinecone') throw new Error("Pinecode::Invalid Setup!");
+
     const client = new PineconeClient();
     await client.init({
       apiKey: process.env.PINECONE_API_KEY,
@@ -327,6 +329,4 @@ const Pinecone = {
   },
 };
 
-module.exports = {
-  Pinecone,
-};
+module.exports.Pinecone = Pinecone;

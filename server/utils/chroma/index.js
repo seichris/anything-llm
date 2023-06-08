@@ -42,6 +42,8 @@ function curateSources(sources = []) {
 const Chroma = {
   name: 'Chroma',
   connect: async function () {
+    if (process.env.VECTOR_DB !== 'pinecone') throw new Error("Chroma::Invalid Setup!");
+
     const client = new ChromaClient({
       path: process.env.CHROMA_ENDPOINT, // if not set will fallback to localhost:8000
     });
@@ -356,6 +358,4 @@ const Chroma = {
   },
 };
 
-module.exports = {
-  Chroma,
-};
+module.exports.Chroma = Chroma;

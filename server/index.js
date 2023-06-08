@@ -1,4 +1,5 @@
 if (process.env.NODE_ENV === 'development') require("dotenv").config({ path: `.env.${process.env.NODE_ENV}` });
+if (process.env.NODE_ENV === 'production') require("dotenv").config();
 const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
@@ -25,17 +26,17 @@ workspaceEndpoints(app);
 chatEndpoints(app);
 
 app.post("/v/:command", async (request, response) => {
-  const VectorDb = getVectorDbClass();
-  const { command } = request.params;
-  if (!Object.getOwnPropertyNames(VectorDb).includes(command)) {
-    response.status(500).json({
-      message: "invalid interface command",
-      commands: Object.getOwnPropertyNames(VectorDb),
-    });
-    return;
-  }
-
   try {
+    const VectorDb = getVectorDbClass();
+    const { command } = request.params;
+    if (!Object.getOwnPropertyNames(VectorDb).includes(command)) {
+      response.status(500).json({
+        message: "invalid interface command",
+        commands: Object.getOwnPropertyNames(VectorDb),
+      });
+      return;
+    }
+
     const body = reqBody(request);
     const resBody = await VectorDb[command](body);
     response.status(200).json({ ...resBody });
@@ -58,10 +59,12 @@ app
     );
   })
   .on("error", function (err) {
-    process.once("SIGUSR2", function () {
-      process.kill(process.pid, "SIGUSR2");
-    });
-    process.on("SIGINT", function () {
-      process.kill(process.pid, "SIGINT");
-    });
-  });
+    if (process.env.NODE_ENV === 'development') {
+      process.once("SIGUSR2", function () {
+        process.kill(process.pid, "SIGUSR2");
+      });
+      process.on("SIGINT", function () {
+        process.kill(process.pid, "SIGINT");
+      });
+    }
+  })

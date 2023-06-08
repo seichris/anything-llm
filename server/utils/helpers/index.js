@@ -9,7 +9,8 @@ function getVectorDbClass() {
     case "chroma":
       return Chroma;
     default:
-      return Pinecone;
+      console.error("No vector db set in environment yet!")
+      return null;
   }
 }
 
