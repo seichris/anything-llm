@@ -1,6 +1,6 @@
 {
-  "name": "socials-to-chat-server",
-  "version": "1.0.0",
+  "name": "anything-llm-server",
+  "version": "0.0.1-beta",
   "description": "Server endpoints to process or create content for chatting",
   "main": "index.js",
   "author": "Timothy Carambat (Mintplex Labs)",
@@ -30,7 +30,8 @@
     "sqlite": "^4.2.1",
     "sqlite3": "^5.1.6",
     "uuid": "^9.0.0",
-    "vectordb": "0.1.5-beta"
+    "jsonwebtoken": "^8.5.1",
+    "vectordb": "0.1.5"
   },
   "devDependencies": {
     "nodemon": "^2.0.22",

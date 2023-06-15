@@ -1,8 +1,8 @@
 const lancedb = require("vectordb");
-const { toChunks } = require("../helpers");
+const { toChunks } = require("../../helpers");
 const { OpenAIEmbeddings } = require("langchain/embeddings/openai");
 const { RecursiveCharacterTextSplitter } = require("langchain/text_splitter");
-const { storeVectorResult, cachedVectorInformation } = require("../files");
+const { storeVectorResult, cachedVectorInformation } = require("../../files");
 const { Configuration, OpenAIApi } = require("openai");
 const { v4: uuidv4 } = require("uuid");
 
@@ -26,8 +26,9 @@ function curateLanceSources(sources = []) {
 }
 
 const LanceDb = {
-  uri: `${!!process.env.STORAGE_DIR ? `${process.env.STORAGE_DIR}/` : "./"
-    }lancedb`,
+  uri: `${
+    !!process.env.STORAGE_DIR ? `${process.env.STORAGE_DIR}/` : "./storage/"
+  }lancedb`,
   name: "LanceDb",
   connect: async function () {
     if (process.env.VECTOR_DB !== "lancedb")
@@ -90,13 +91,11 @@ const LanceDb = {
   updateOrCreateCollection: async function (client, data = [], namespace) {
     if (await this.hasNamespace(namespace)) {
       const collection = await client.openTable(namespace);
-      const result = await collection.add(data);
-      console.log({ result });
+      await collection.add(data);
       return true;
     }
 
-    const result = await client.createTable(namespace, data);
-    console.log({ result });
+    await client.createTable(namespace, data);
     return true;
   },
   hasNamespace: async function (namespace = null) {
@@ -126,7 +125,7 @@ const LanceDb = {
     documentData = {},
     fullFilePath = null
   ) {
-    const { DocumentVectors } = require("../../models/vectors");
+    const { DocumentVectors } = require("../../../models/vectors");
     try {
       const { pageContent, docId, ...metadata } = documentData;
       if (!pageContent || pageContent.length == 0) return false;
@@ -148,7 +147,6 @@ const LanceDb = {
           });
         }
 
-        console.log(submissions);
         await this.updateOrCreateCollection(client, submissions, namespace);
         await DocumentVectors.bulkInsert(documentVectors);
         return true;
@@ -282,4 +280,4 @@ const LanceDb = {
   },
 };
 
-module.exports.LanceDb = LanceDb
+module.exports.LanceDb = LanceDb;

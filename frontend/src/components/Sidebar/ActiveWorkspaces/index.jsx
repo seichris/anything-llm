@@ -5,7 +5,7 @@ import "react-loading-skeleton/dist/skeleton.css";
 import Workspace from "../../../models/workspace";
 import ManageWorkspace, {
   useManageWorkspaceModal,
-} from "../../Modals/ManageWorkspace";
+} from "../../Modals/MangeWorkspace";
 import paths from "../../../utils/paths";
 import { useParams } from "react-router-dom";
 
