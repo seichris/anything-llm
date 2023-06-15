@@ -1,0 +1,56 @@
+on:
+  workflow_run:
+    workflows: ["Update Fork"]
+    types:
+      - completed
+  schedule:
+    - cron: '0 0 * * *' # Runs daily at midnight
+
+jobs:
+  update-fork:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          ref: 2
+          fetch-depth: 0
+          token: ${{ secrets.PUSH }}
+
+      - name: Setup Git
+        run: |
+          git config user.name "GitHub Action"
+          git config user.email "action@github.com"
+      - name: Fetch upstream changes
+        run: |
+          git remote add upstream https://github.com/Mintplex-Labs/anything-llm.git
+          git fetch upstream
+      - name: Merge upstream changes into fork
+        run: |
+          git checkout 2
+          git merge upstream/master --no-edit
+      - name: Check for changes
+        id: check_changes
+        run: |
+          CURRENT_COMMIT=$(git rev-parse HEAD)
+          UPSTREAM_COMMIT=$(git rev-parse upstream/master)
+          if [ "$CURRENT_COMMIT" == "$UPSTREAM_COMMIT" ]; then
+            echo "::set-output name=has_changes::false"
+          else
+            echo "::set-output name=has_changes::true"
+          fi
+      - name: Push changes to fork
+        if: steps.check_changes.outputs.has_changes == 'true'
+        run: git push https://x-access-token:${{ secrets.PUSH }}@github.com/seichris/anything-llm.git 2
+
+      - name: Create pull request
+        if: steps.check_changes.outputs.has_changes == 'true'
+        uses: peter-evans/create-pull-request@v3
+        with:
+          token: ${{ secrets.PUSH }}
+          commit-message: Update fork with upstream changes
+          title: Update fork with upstream changes
+          body: |
+            This pull request was automatically created to update the fork with the latest changes from the upstream repository.
+          branch: update-fork
+          base: 2
