@@ -10,6 +10,7 @@ const Workspace = {
     "slug",
     "vectorTag",
     "openAiTemp",
+    "openAiHistory",
     "lastUpdatedAt",
   ],
   colsInit: `
@@ -19,6 +20,7 @@ const Workspace = {
   vectorTag TEXT DEFAULT NULL,
   createdAt TEXT DEFAULT CURRENT_TIMESTAMP,
   openAiTemp REAL DEFAULT NULL,
+  openAiHistory INTEGER DEFAULT 20,
   lastUpdatedAt TEXT DEFAULT CURRENT_TIMESTAMP
   `,
   migrateTable: async function () {
@@ -41,6 +43,11 @@ const Workspace = {
                                   UPDATE ${this.tablename} SET lastUpdatedAt = CURRENT_TIMESTAMP WHERE id = old.id;
                                  END`,
         doif: true,
+      },
+      {
+        colName: "openAiHistory",
+        execCmd: `ALTER TABLE ${this.tablename} ADD COLUMN openAiHistory INTEGER DEFAULT 20`,
+        doif: false,
       },
     ];
   },
